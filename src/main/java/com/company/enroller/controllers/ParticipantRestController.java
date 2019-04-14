@@ -64,7 +64,7 @@ public class ParticipantRestController {
 	public ResponseEntity<?> update(@PathVariable("id") String login, @RequestBody Participant incommingParticipant) {
 		Participant participant = participantService.findByLogin(login);
 		
-		if (participant != null) {
+		if (participant == null) {
 			return new ResponseEntity(HttpStatus.NOT_FOUND);
 		}
 		participant.setPassword(incommingParticipant.getPassword());
