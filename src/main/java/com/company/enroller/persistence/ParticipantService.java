@@ -32,4 +32,16 @@ public class ParticipantService {
 		
 	}
 
+	public void deleteLogin(Participant participant) {
+		Transaction transaction  = connector.getSession().beginTransaction();
+		connector.getSession().delete(participant);
+		transaction.commit();
+	}
+	
+	public void update(Participant participant){
+		Transaction transaction  = connector.getSession().beginTransaction();
+		connector.getSession().merge(participant);
+		transaction.commit();
+	}
+
 }
