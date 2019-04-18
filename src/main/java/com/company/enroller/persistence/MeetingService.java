@@ -1,6 +1,7 @@
 package com.company.enroller.persistence;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.hibernate.Query;
 import org.hibernate.Transaction;
@@ -18,17 +19,11 @@ public class MeetingService {
 		connector = DatabaseConnector.getInstance();
 	}
 
-//	public Collection<Meeting> getAll() {
-//		String hql = "FROM Meeting";
-//		Query query = connector.getSession().createQuery(hql);
-//		return query.list();
-//	}
-	
 	public Collection<Meeting> getAll() {
 		return connector.getSession().createCriteria(Meeting.class).list();
 	}
 
-	public Meeting findByLogin(long id) {
+	public Meeting findById(long id) {
 		return (Meeting) connector.getSession().get(Meeting.class, id);
 	}
 
@@ -37,7 +32,6 @@ public class MeetingService {
 		connector.getSession().save(meeting);
 		transaction.commit();
 		return meeting;
-		
 	}
 
 	public Collection<Participant> getAllParticipants(long id) {
@@ -48,20 +42,41 @@ public class MeetingService {
 		return !(connector.getSession().get(Participant.class, login) != null);
 	}
 
-	public Meeting addParticipantToMeeting(Meeting meeting, Participant participant) {
+	public void addParticipantToMeeting(Meeting meeting) {
 		Transaction transaction  = connector.getSession().beginTransaction();
-		meeting.addParticipant(participant);
 		connector.getSession().save(meeting);
 		transaction.commit();
+	}
+
+	public void deleteMeetind(Meeting meeting) {
+		Transaction transaction  = connector.getSession().beginTransaction();
+		connector.getSession().delete(meeting);
+		transaction.commit();
+	}
+
+	public Participant findByLoginInMeeting(long id, String login) {
+		Collection<Participant> participants = ((Meeting) connector.getSession().get(Meeting.class, id)).getParticipants();
+		for(Participant participant : participants) {
+			if(participant.getLogin().equals(login)) {
+				return participant;
+			}
+		}
 		return null;
 	}
 
+	public void deleteParticipantFromMeeting(Meeting meeting) {
+		Transaction transaction  = connector.getSession().beginTransaction();
+		connector.getSession().save(meeting);
+		transaction.commit();
+	}
+
+	public void update(Meeting meeting) {
+		Transaction transaction  = connector.getSession().beginTransaction();
+		connector.getSession().merge(meeting);
+		transaction.commit();
+	}
+
 }
-//    Wersja GOLD (dodatkowo do BASIC)
-//        Usuwanie spotkań
-//        Aktualizację spotkań
-//        Usuwanie uczestnika ze spotkania
-//    Wersja PREMIUM (dodatkowo do GOLD)
 //        Sortowanie listy spotkań po tytule spotkania
 //        Przeszukiwanie listy spotkań po tytule i opisie (na zasadzie substring)
 //        Przeszukiwanie listy spotkań po zapisanym uczestniku spotkania
