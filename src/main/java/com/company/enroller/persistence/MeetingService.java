@@ -1,10 +1,18 @@
 package com.company.enroller.persistence;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.LogicalExpression;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Component;
 
 import com.company.enroller.model.Meeting;
@@ -22,13 +30,30 @@ public class MeetingService {
 	public Collection<Meeting> getAll() {
 		return connector.getSession().createCriteria(Meeting.class).list();
 	}
+	
+	public Collection<Meeting> getAllSortedByTitle(String order) {
+		List<Meeting> meetings = connector.getSession().createCriteria(Meeting.class).list();
+		int  orderIndicator;
+		if (order.equals("desc")) {
+			orderIndicator = -1;
+		} else{
+			orderIndicator = 1;
+		}
+		Collections.sort(meetings, new Comparator<Meeting>(){
+			@Override
+			public int compare(Meeting meeting, Meeting otherMeeting) {
+				return orderIndicator * (meeting.getTitle().toLowerCase().compareTo(otherMeeting.getTitle().toLowerCase()));
+			}
+		});
+		return meetings;
+	}
 
 	public Meeting findById(long id) {
 		return (Meeting) connector.getSession().get(Meeting.class, id);
 	}
 
 	public Meeting add(Meeting meeting) {
-		Transaction transaction  = connector.getSession().beginTransaction();
+		Transaction transaction = connector.getSession().beginTransaction();
 		connector.getSession().save(meeting);
 		transaction.commit();
 		return meeting;
@@ -37,27 +62,28 @@ public class MeetingService {
 	public Collection<Participant> getAllParticipants(long id) {
 		return ((Meeting) connector.getSession().get(Meeting.class, id)).getParticipants();
 	}
-	
+
 	public boolean isParticipantEgsist(String login) {
 		return !(connector.getSession().get(Participant.class, login) != null);
 	}
 
 	public void addParticipantToMeeting(Meeting meeting) {
-		Transaction transaction  = connector.getSession().beginTransaction();
+		Transaction transaction = connector.getSession().beginTransaction();
 		connector.getSession().save(meeting);
 		transaction.commit();
 	}
 
-	public void deleteMeetind(Meeting meeting) {
-		Transaction transaction  = connector.getSession().beginTransaction();
+	public void deleteMeeting(Meeting meeting) {
+		Transaction transaction = connector.getSession().beginTransaction();
 		connector.getSession().delete(meeting);
 		transaction.commit();
 	}
 
 	public Participant findByLoginInMeeting(long id, String login) {
-		Collection<Participant> participants = ((Meeting) connector.getSession().get(Meeting.class, id)).getParticipants();
-		for(Participant participant : participants) {
-			if(participant.getLogin().equals(login)) {
+		Collection<Participant> participants = ((Meeting) connector.getSession().get(Meeting.class, id))
+				.getParticipants();
+		for (Participant participant : participants) {
+			if (participant.getLogin().equals(login)) {
 				return participant;
 			}
 		}
@@ -65,18 +91,38 @@ public class MeetingService {
 	}
 
 	public void deleteParticipantFromMeeting(Meeting meeting) {
-		Transaction transaction  = connector.getSession().beginTransaction();
+		Transaction transaction = connector.getSession().beginTransaction();
 		connector.getSession().save(meeting);
 		transaction.commit();
 	}
 
 	public void update(Meeting meeting) {
-		Transaction transaction  = connector.getSession().beginTransaction();
+		Transaction transaction = connector.getSession().beginTransaction();
 		connector.getSession().merge(meeting);
 		transaction.commit();
 	}
 
+	public Collection<Meeting> getMeetingsWithSubstring(String query) {
+		Criteria crit = connector.getSession().createCriteria(Meeting.class);
+		
+		Criterion findInTitle = Restrictions.like("title", query, MatchMode.ANYWHERE);
+		Criterion findInDescription = Restrictions.like("description", query, MatchMode.ANYWHERE);
+		
+		LogicalExpression orExp = Restrictions.or(findInTitle, findInDescription);
+		crit.add(orExp);
+		
+		return crit.list();
+	}
+
+	public Collection<Meeting> getMeetingsWithParticipant(String query) {
+		Criteria crit = connector.getSession().createCriteria(Meeting.class, "participants");
+		Criteria crit2 = crit.createCriteria(associationPath, alias)
+		
+		
+		Criterion xx = Restrictions.sqlRestriction("{alias}.joinedEntity.login like " + query);
+		
+		return crit.add(xx).list();
+	}
+
 }
-//        Sortowanie listy spotkań po tytule spotkania
-//        Przeszukiwanie listy spotkań po tytule i opisie (na zasadzie substring)
 //        Przeszukiwanie listy spotkań po zapisanym uczestniku spotkania
