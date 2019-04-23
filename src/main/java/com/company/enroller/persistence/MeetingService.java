@@ -12,6 +12,7 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Component;
 
@@ -27,25 +28,15 @@ public class MeetingService {
 		connector = DatabaseConnector.getInstance();
 	}
 
-	public Collection<Meeting> getAll() {
-		return connector.getSession().createCriteria(Meeting.class).list();
-	}
-	
-	public Collection<Meeting> getAllSortedByTitle(String order) {
-		List<Meeting> meetings = connector.getSession().createCriteria(Meeting.class).list();
-		int  orderIndicator;
+	public Collection<Meeting> getAllSortedByTitle(String sort, String order) {
+		Criteria crit = connector.getSession().createCriteria(Meeting.class);
 		if (order.equals("desc")) {
-			orderIndicator = -1;
-		} else{
-			orderIndicator = 1;
+			crit.addOrder(Order.desc(sort));
+		} else {
+			crit.addOrder(Order.asc(sort));
 		}
-		Collections.sort(meetings, new Comparator<Meeting>(){
-			@Override
-			public int compare(Meeting meeting, Meeting otherMeeting) {
-				return orderIndicator * (meeting.getTitle().toLowerCase().compareTo(otherMeeting.getTitle().toLowerCase()));
-			}
-		});
-		return meetings;
+
+		return crit.list();
 	}
 
 	public Meeting findById(long id) {
@@ -104,25 +95,25 @@ public class MeetingService {
 
 	public Collection<Meeting> getMeetingsWithSubstring(String query) {
 		Criteria crit = connector.getSession().createCriteria(Meeting.class);
-		
+
 		Criterion findInTitle = Restrictions.like("title", query, MatchMode.ANYWHERE);
 		Criterion findInDescription = Restrictions.like("description", query, MatchMode.ANYWHERE);
-		
+
 		LogicalExpression orExp = Restrictions.or(findInTitle, findInDescription);
 		crit.add(orExp);
-		
+
 		return crit.list();
 	}
 
-	public Collection<Meeting> getMeetingsWithParticipant(String query) {
-		Criteria crit = connector.getSession().createCriteria(Meeting.class, "participants");
-		Criteria crit2 = crit.createCriteria(associationPath, alias)
-		
-		
-		Criterion xx = Restrictions.sqlRestriction("{alias}.joinedEntity.login like " + query);
-		
-		return crit.add(xx).list();
-	}
+//	public Collection<Meeting> getMeetingsWithParticipant(String query) {
+//		Criteria crit = connector.getSession().createCriteria(Meeting.class, "participants");
+//		Criteria crit2 = crit.createCriteria(git, alias)
+//		
+//		
+//		Criterion xx = Restrictions.sqlRestriction("{alias}.joinedEntity.login like " + query);
+//		
+//		return crit.add(xx).list();
+//	}
 
 }
 //        Przeszukiwanie listy spotkań po zapisanym uczestniku spotkania

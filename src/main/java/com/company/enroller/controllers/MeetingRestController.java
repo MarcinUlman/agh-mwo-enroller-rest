@@ -26,13 +26,8 @@ public class MeetingRestController {
 
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public ResponseEntity<?> getMeetings(@RequestParam(defaultValue = "") String sort, @RequestParam(defaultValue = "asc") String order) {
-			if(sort.equals("title")) {
-				Collection<Meeting> meetings = meetingService.getAllSortedByTitle(order);
+				Collection<Meeting> meetings = meetingService.getAllSortedByTitle(sort, order);
 				return new ResponseEntity<Collection<Meeting>>(meetings, HttpStatus.OK);
-			}
-		
-		Collection<Meeting> meetings = meetingService.getAll();
-		return new ResponseEntity<Collection<Meeting>>(meetings, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -138,10 +133,10 @@ public class MeetingRestController {
 		if (query.equals("")) {
 			return getMeetings("", "");
 		}
-		if (type.equals("participant")) {
-			Collection<Meeting> meetings = meetingService.getMeetingsWithParticipant(query);
-			return new ResponseEntity<Collection<Meeting>>(meetings, HttpStatus.OK);
-		}
+//		if (type.equals("participant")) {
+//			Collection<Meeting> meetings = meetingService.getMeetingsWithParticipant(query);
+//			return new ResponseEntity<Collection<Meeting>>(meetings, HttpStatus.OK);
+//		}
 		
 		Collection<Meeting> meetings = meetingService.getMeetingsWithSubstring(query);
 		return new ResponseEntity<Collection<Meeting>>(meetings, HttpStatus.OK);
