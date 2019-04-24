@@ -72,7 +72,7 @@ public class MeetingService {
 		connector.getSession().delete(meeting);
 		transaction.commit();
 	}
-//////////////////////////////////////////////////////////
+
 	public Participant findByLoginInMeeting(long id, String login) {
 		Collection<Participant> participants = ((Meeting) connector.getSession().get(Meeting.class, id))
 				.getParticipants();
@@ -81,9 +81,9 @@ public class MeetingService {
 				return participant;
 			}
 		}
-		
+
 		connector.getSession().get(Meeting.class, id);
-		
+
 		return null;
 	}
 
@@ -110,16 +110,10 @@ public class MeetingService {
 
 		return crit.list();
 	}
-///////////////////////////////////////////////////////////////////////////
+
 	public Collection<Meeting> getMeetingsWithParticipant(String query) {
 		String hql = "SELECT M FROM Meeting M JOIN M.participants P WHERE P.login = '" + query + "'";
 		return connector.getSession().createQuery(hql).list();
-		
-//		Criteria crit = connector.getSession().createCriteria(Meeting.class, "participants");
-//		crit.add(Restrictions.like("login", query));
-		
-		//return crit.list();
 	}
 
 }
-//        Przeszukiwanie listy spotkań po zapisanym uczestniku spotkania
