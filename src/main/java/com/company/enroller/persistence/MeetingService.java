@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.catalina.Session;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Transaction;
@@ -13,6 +14,8 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Component;
 
@@ -69,7 +72,7 @@ public class MeetingService {
 		connector.getSession().delete(meeting);
 		transaction.commit();
 	}
-
+//////////////////////////////////////////////////////////
 	public Participant findByLoginInMeeting(long id, String login) {
 		Collection<Participant> participants = ((Meeting) connector.getSession().get(Meeting.class, id))
 				.getParticipants();
@@ -78,6 +81,9 @@ public class MeetingService {
 				return participant;
 			}
 		}
+		
+		connector.getSession().get(Meeting.class, id);
+		
 		return null;
 	}
 
@@ -104,16 +110,16 @@ public class MeetingService {
 
 		return crit.list();
 	}
-
-//	public Collection<Meeting> getMeetingsWithParticipant(String query) {
+///////////////////////////////////////////////////////////////////////////
+	public Collection<Meeting> getMeetingsWithParticipant(String query) {
+		String hql = "SELECT M FROM Meeting M JOIN M.participants P WHERE P.login = '" + query + "'";
+		return connector.getSession().createQuery(hql).list();
+		
 //		Criteria crit = connector.getSession().createCriteria(Meeting.class, "participants");
-//		Criteria crit2 = crit.createCriteria(git, alias)
-//		
-//		
-//		Criterion xx = Restrictions.sqlRestriction("{alias}.joinedEntity.login like " + query);
-//		
-//		return crit.add(xx).list();
-//	}
+//		crit.add(Restrictions.like("login", query));
+		
+		//return crit.list();
+	}
 
 }
 //        Przeszukiwanie listy spotkań po zapisanym uczestniku spotkania
