@@ -129,8 +129,6 @@ public class MeetingRestController {
 		return new ResponseEntity<Participant>(participant, HttpStatus.NO_CONTENT);
 	}
 
-	// /meetings/search?query=substring
-	// /meetings/search?type=participant&query=login
 	@RequestMapping(value = "/search", method = RequestMethod.GET)
 	public ResponseEntity<?> searchMeetings(@RequestParam(defaultValue = "") String type,
 			@RequestParam(defaultValue = "") String query) {
