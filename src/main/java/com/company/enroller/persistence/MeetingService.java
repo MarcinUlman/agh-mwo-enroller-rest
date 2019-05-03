@@ -111,9 +111,14 @@ public class MeetingService {
 		return crit.list();
 	}
 
-	public Collection<Meeting> getMeetingsWithParticipant(String query) {
-		String hql = "SELECT M FROM Meeting M JOIN M.participants P WHERE P.login = '" + query + "'";
-		return connector.getSession().createQuery(hql).list();
+	public Collection getMeetingsWithParticipant(String query) {
+
+		Criteria crit = connector.getSession().createCriteria(Meeting.class);
+
+		crit.createAlias("participants", "participantsAlias");
+		crit.add(Restrictions.eq("participantsAlias.login", query));
+
+		return crit.list();
 	}
 
 }

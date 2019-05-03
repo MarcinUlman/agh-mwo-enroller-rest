@@ -140,7 +140,7 @@ public class MeetingRestController {
 			if (meetings.size() > 0) {
 				return new ResponseEntity<Collection<Meeting>>(meetings, HttpStatus.OK);
 			} else {
-				return new ResponseEntity<>("Meeting with participant" + query + "does not exist.",
+				return new ResponseEntity<>("Meeting with participant " + query + " does not exist.",
 						HttpStatus.NOT_FOUND);
 			}
 		}
